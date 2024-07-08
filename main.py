@@ -19,7 +19,7 @@ f0, evalParams = f0tracking(rec.reshape(-1), stm)
 '''
 
 
-F0Table.F0Table('./data2/', 'FH')
+F0Table.F0Table('../data2/', 'FH')
 # Plots
 # h filter heatmap
 '''
@@ -46,6 +46,7 @@ plt.legend()
 # =======================================================================
 # =======================================================================
 # =======================================================================
+'''
 device = ("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 subs = ['S01', 'S02', 'S03', 'S04', 'S05', 'S06', 'S07', 'S08', 'S09', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15', 'S16']
 stm = pd.read_csv('./stm/FS.csv').values
@@ -107,3 +108,4 @@ for epoch in range(1000):
     if epoch % 50 == 0:
         print(f"loss: {loss:>7f}  [Epoch: {epoch:>5d}]")
 
+'''
