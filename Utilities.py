@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import torch
 
 def fivePercent(ref, sig):
     valid = np.abs(ref - sig) < 0.05 * ref
@@ -27,3 +27,10 @@ def fft_onesided(x, fs, n):
     # Define the frequency domain f
     f = np.fft.fftfreq(n, 1 / fs)[:n // 2 + 1]
     return P1, f
+
+
+def amp_at_har(X, h, har, idx):
+    X = torch.mul(X, h[har])
+    XX = torch.sum(X, dim=2).numpy()
+    har_amp = XX[np.arange(len(idx)), idx]
+    return amp_at_har
