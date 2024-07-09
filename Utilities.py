@@ -33,4 +33,4 @@ def amp_at_har(X, h, har, idx):
     X = torch.mul(X, h[har])
     XX = torch.sum(X, dim=2).numpy()
     har_amp = XX[np.arange(len(idx)), idx]
-    return amp_at_har
+    return har_amp
