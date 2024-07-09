@@ -16,6 +16,10 @@ def F0Table(path, Stimulus):
     # Read subject data
     f0s = np.zeros((len(subs), stm.shape[0]))
     amps = np.zeros((len(subs), stm.shape[0]))
+    f0_amps = np.zeros((len(subs), stm.shape[0]))
+    h1_amps = np.zeros((len(subs), stm.shape[0]))
+    h2_amps = np.zeros((len(subs), stm.shape[0]))
+    h3_amps = np.zeros((len(subs), stm.shape[0]))
     pdf = matplotlib.backends.backend_pdf.PdfPages('figures.pdf')
     for idx, sub in enumerate(subs):
         rec = pd.read_csv(path + Stimulus + '/' + sub + '.csv')
@@ -23,10 +27,14 @@ def F0Table(path, Stimulus):
         recOdd = rec.loc[rec['Polarity'] == 'Odd'].iloc[:, 0:4096].values
         rec = np.mean((recEven + recOdd) / 2, axis=0)
         # F0 Tracking
-        f0, amp, evalParams, fig = f0tracking(rec, stm, idx)
+        f0, amp, evalParams, fig, har_amp = f0tracking(rec, stm, idx)
         pdf.savefig(fig)
         f0s[idx] = f0
         amps[idx] = amp
+        f0_amps[idx] = har_amp[0]
+        h1_amps[idx] = har_amp[1]
+        h2_amps[idx] = har_amp[2]
+        h3_amps[idx] = har_amp[3]
         mse.append(round(evalParams[0], 2))
         rmse.append(round(evalParams[1], 2))
         acc5.append(round(evalParams[2], 2))
@@ -35,9 +43,16 @@ def F0Table(path, Stimulus):
     pdf.close()
     df_f0 = pd.DataFrame(f0s, index=subs)
     df_amp = pd.DataFrame(amps, index=subs)
-
+    df_f0_amp = pd.DataFrame(f0_amps, index=subs)
+    df_h1_amp = pd.DataFrame(h1_amps, index=subs)
+    df_h2_amp = pd.DataFrame(h2_amps, index=subs)
+    df_h3_amp = pd.DataFrame(h3_amps, index=subs)
     df_f0.to_excel('f0_'+Stimulus+'.xlsx', index=True, header=True)
     df_amp.to_excel('amp_'+Stimulus+'.xlsx', index=True, header=True)
+    df_f0_amp.to_excel('f0_amp_' + Stimulus + '.xlsx', index=True, header=True)
+    df_h1_amp.to_excel('h1_amp_' + Stimulus + '.xlsx', index=True, header=True)
+    df_h2_amp.to_excel('h2_amp_' + Stimulus + '.xlsx', index=True, header=True)
+    df_h3_amp.to_excel('h3_amp_' + Stimulus + '.xlsx', index=True, header=True)
     result = {
         'Subject': (np.arange(len(subs)) + 1),
         'MSE': mse,
