@@ -23,13 +23,15 @@ def f0tracking(record, stm, sub_idx):
     df = (np.ceil(2 * nfft / winLen) + 1).astype(int)
 
     H, fx, scale = filterh(winLen, fs, k, 80, 500, nfft=nfft)
-    h = H[-1, :, :]  # harmonic aum
     # Cut unwanted frequencies
     idx_max = np.argmin(np.abs(fx - f0max * k)) + df
     idx_min = np.argmax(fx > 60)
     fx = fx[idx_min:idx_max]
-    h = h[:, idx_min:idx_max]
-    h = torch.from_numpy(h)
+    H = H[:, :, idx_min:idx_max]
+    # h = h[:, idx_min:idx_max]
+    # h = torch.from_numpy(h)
+    H = torch.from_numpy(H)
+    h = H[-1, :, :]  # harmonic sum
 
     # Spectrogram
     data, fx2 = time2freq(record, fs, nfft, 41, 90, 10)
@@ -53,8 +55,10 @@ def f0tracking(record, stm, sub_idx):
     amp_idx = np.array(f0-f0min).astype(np.int32)
     amp = XX[np.arange(len(amp_idx)), amp_idx]
 
-    f0_amp = F.amp_at_har(X, h, 0, amp_idx)
-
+    f0_amp = F.amp_at_har(X, H, 0, amp_idx)
+    h1_amp = F.amp_at_har(X, H, 1, amp_idx)
+    h2_amp = F.amp_at_har(X, H, 2, amp_idx)
+    h3_amp = F.amp_at_har(X, H, 3, amp_idx)
     # Evaluation
     mse = F.mse(stm[:, 1], f0)
     rmse = F.rmse(stm[:, 1], f0)
@@ -77,4 +81,4 @@ def f0tracking(record, stm, sub_idx):
 
     ax[2].imshow(data, cmap='hot')
     plt.show()
-    return f0, amp, (mse, rmse, acc5), fig, f0_amp
+    return f0, amp, (mse, rmse, acc5), fig, (f0_amp, h1_amp, h2_amp, h3_amp)

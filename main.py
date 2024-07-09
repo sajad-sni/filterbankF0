@@ -19,7 +19,7 @@ f0, evalParams = f0tracking(rec.reshape(-1), stm)
 '''
 
 
-F0Table.F0Table('../data2/', 'FH')
+F0Table.F0Table('../data2/', 'MS')
 # Plots
 # h filter heatmap
 '''
