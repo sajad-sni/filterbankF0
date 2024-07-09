@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 def f0tracking(record, stm, sub_idx):
     # initial parameters
     fs = 5714
-    nfft = 4096
+    nfft = 1024
     tx = stm[:, 0]
     f0min = 80
     f0max = 500
@@ -22,8 +22,8 @@ def f0tracking(record, stm, sub_idx):
     winLen = 285
     df = (np.ceil(2 * nfft / winLen) + 1).astype(int)
 
-    h, fx, scale = filterh(winLen, fs, k, 80, 500, nfft=nfft)
-
+    H, fx, scale = filterh(winLen, fs, k, 80, 500, nfft=nfft)
+    h = H[-1, :, :]  # harmonic aum
     # Cut unwanted frequencies
     idx_max = np.argmin(np.abs(fx - f0max * k)) + df
     idx_min = np.argmax(fx > 60)
@@ -51,7 +51,10 @@ def f0tracking(record, stm, sub_idx):
     f0_idx = np.argmin(np.abs(f0_candidates - stm[:, 1].reshape(-1, 1)), axis=1)
     f0 = f0_candidates[np.arange(XX.shape[0]), f0_idx]
     amp_idx = np.array(f0-f0min).astype(np.int32)
-    amp = XX[np.arange(len(amp_idx)), amp_idx]*scale
+    amp = XX[np.arange(len(amp_idx)), amp_idx]
+
+    f0_amp = F.amp_at_har(X, h, 0, amp_idx)
+
     # Evaluation
     mse = F.mse(stm[:, 1], f0)
     rmse = F.rmse(stm[:, 1], f0)
@@ -74,4 +77,4 @@ def f0tracking(record, stm, sub_idx):
 
     ax[2].imshow(data, cmap='hot')
     plt.show()
-    return f0, amp, (mse, rmse, acc5), fig
+    return f0, amp, (mse, rmse, acc5), fig, f0_amp
