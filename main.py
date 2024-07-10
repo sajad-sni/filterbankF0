@@ -6,6 +6,7 @@ import torch.optim as optim
 import pandas as pd
 import time2freq
 import F0Table
+import Utilities as F
 from FilterBankF0Tracking import f0tracking
 import matplotlib.pyplot as plt
 from filterh import filterh
@@ -18,8 +19,9 @@ stm = pd.read_csv('D:/PHD/Study2/RDstm.csv').values
 f0, evalParams = f0tracking(rec.reshape(-1), stm)
 '''
 
-
-F0Table.F0Table('../data2/', 'MS')
+F.amp_ratio('./result/MS/stimulus/h3_amp_MS.xlsx', './result/MS/h3_amp_MS.xlsx')
+#F.amp_mse('./result/MS/stimulus/f0_amp_MS.xlsx', './result/MS/f0_amp_MS.xlsx')
+#F0Table.F0Table('../data2/', 'FH')
 # Plots
 # h filter heatmap
 '''

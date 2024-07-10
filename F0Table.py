@@ -3,6 +3,9 @@ from FilterBankF0Tracking import f0tracking
 import numpy as np
 import pandas as pd
 import matplotlib.backends.backend_pdf
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler(feature_range=(-1, 1))
+
 
 def F0Table(path, Stimulus):
     subs = ['S01', 'S02', 'S03', 'S04', 'S05', 'S06', 'S07', 'S08', 'S09', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15',
@@ -13,6 +16,7 @@ def F0Table(path, Stimulus):
     mse = []
     rmse = []
     acc5 = []
+
     # Read subject data
     f0s = np.zeros((len(subs), stm.shape[0]))
     amps = np.zeros((len(subs), stm.shape[0]))
@@ -26,6 +30,11 @@ def F0Table(path, Stimulus):
         recEven = rec.loc[rec['Polarity'] == 'Even'].iloc[:, 0:4096].values
         recOdd = rec.loc[rec['Polarity'] == 'Odd'].iloc[:, 0:4096].values
         rec = np.mean((recEven + recOdd) / 2, axis=0)
+        rec = scaler.fit_transform(rec[:, None]).reshape(-1)
+        print('=======================================')
+        print(f"Record Power = {np.mean(np.square(rec)):3f}")
+        print('=======================================')
+
         # F0 Tracking
         f0, amp, evalParams, fig, har_amp = f0tracking(rec, stm, idx)
         pdf.savefig(fig)

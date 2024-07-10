@@ -19,7 +19,8 @@ def f0tracking(record, stm, sub_idx):
     f0min = 80
     f0max = 500
     k = 4  # number of harmonics
-    winLen = 285
+    cut = 41
+    winLen = round(0.05*fs)
     df = (np.ceil(2 * nfft / winLen) + 1).astype(int)
 
     H, fx, scale = filterh(winLen, fs, k, 80, 500, nfft=nfft)
@@ -34,7 +35,7 @@ def f0tracking(record, stm, sub_idx):
     h = H[-1, :, :]  # harmonic sum
 
     # Spectrogram
-    data, fx2 = time2freq(record, fs, nfft, 41, 90, 10)
+    data, fx2 = time2freq(record, fs, nfft, cut, 90, 10)
     data = data[:stm.shape[0], :]
 
     data = data[:, idx_min:idx_max]
@@ -50,8 +51,11 @@ def f0tracking(record, stm, sub_idx):
         cand = signal.find_peaks_cwt(XX[i, :], df)
         for j in range(np.min([len(cand), 4])):
             f0_candidates[i, j] = cand[j] + f0min
+
     f0_idx = np.argmin(np.abs(f0_candidates - stm[:, 1].reshape(-1, 1)), axis=1)
+
     f0 = f0_candidates[np.arange(XX.shape[0]), f0_idx]
+    # f0 = stm[:, 1]
     amp_idx = np.array(f0-f0min).astype(np.int32)
     amp = XX[np.arange(len(amp_idx)), amp_idx]
 
